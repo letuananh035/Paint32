@@ -7,7 +7,7 @@
 
 
 ### Các chức năng làm được:
-  - Vẽ đường thẳng, tròn, điểm, chữ nhật, vuông, elip, hình có fill.
+  - Vẽ đường thẳng, tròn, điểm, chữ nhật, vuông, elip, hình có fill.(Dùng Shift để vẽ hình tròn, vuông khi vẽ elip và chữ nhật)
   - Chỉnh loại nét, size, màu nét, màu fill.
   - Layer cho phép đổi vị trí, thêm, xóa.
   - Load hình bipmap và bin(gồm bitmap background nếu có).
