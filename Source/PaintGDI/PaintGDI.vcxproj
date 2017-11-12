@@ -56,6 +56,14 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <CustomBuild>
+      <Command>
+      </Command>
+    </CustomBuild>
+    <CustomBuild>
+      <Outputs>
+      </Outputs>
+    </CustomBuild>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -78,15 +86,22 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="CommandHandler.h" />
     <ClInclude Include="Global.h" />
     <ClInclude Include="PaintGDI.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="RibbonFramework.h" />
+    <ClInclude Include="RibbonIDs.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="CToolBar.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="CommandHandler.cpp" />
     <ClCompile Include="PaintGDI.cpp" />
+    <ClCompile Include="RibbonFramework.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -95,11 +110,19 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PaintGDI.rc" />
+    <ResourceCompile Include="Ribbon.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="images.bmp" />
     <Image Include="PaintGDI.ico" />
     <Image Include="small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Ribbon.xml">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">uicc.exe Ribbon.xml Ribbon.bml /header:RibbonIDs.h /res:Ribbon.rc</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Ribbon.bml;RibbonIDs.h;Ribbon.rc;%(Outputs)</Outputs>
+      <SubType>Designer</SubType>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

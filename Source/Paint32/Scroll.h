@@ -14,16 +14,18 @@ namespace Paint32{
 		private:
 			int scrollY;
 			int scrollX;
+			HWND hWndVertScroll;
 		public:
 			Scroll(){ this->scrollX = this->scrollY = 0; }
 			/*Tạo ScrollX và ScrollY*/
-			void CreateScroll(HWND hWnd);
+			void CreateScroll(HWND hWnd, HINSTANCE hIns);
 			int getScrollX(){ return this->scrollX; }
 			int getScrollY(){ return this->scrollY; }
 			/*Di chuyển ScrollX*/
 			void MoveScrollX(HWND hWnd, WPARAM wParam, LPARAM lParam);
 			/*Di chuyển ScrollY*/
 			void MoveScrollY(HWND hWnd, WPARAM wParam, LPARAM lParam);
+			void UpadateScrollY(HWND hWnd, HINSTANCE hIns, RECT rc, int Top);
 		};
 	}
 }

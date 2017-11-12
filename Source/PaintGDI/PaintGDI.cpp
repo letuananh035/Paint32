@@ -17,7 +17,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	// TODO: Place code here.
 	MSG msg;
 	HACCEL hAccelTable;
-
+	HRESULT hr = CoInitialize(NULL);
+	if (FAILED(hr)) return FALSE;
 	// Initialize global strings
 	LoadString(hInstance, IDS_APP_TITLE, Global::szTitle, MAX_LOADSTRING);
 	LoadString(hInstance, IDC_PAINTGDI, Global::szWindowClass, MAX_LOADSTRING);
@@ -37,6 +38,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	// Main message loop:
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
+
 		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
 		{
 			TranslateMessage(&msg);
@@ -48,6 +50,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		}
 
 	}
+
+	CoUninitialize();
 	return (int)msg.wParam;
 }
 
@@ -64,7 +68,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
 
-	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.style = 0; //CS_HREDRAW | CS_VREDRAW;
 	wcex.lpfnWndProc = WndProc;
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
@@ -152,8 +156,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify){
-	
-	switch (id) 
+	static COLORREF acrCustClr[16];
+	CHOOSECOLOR colorSelect;
+	ZeroMemory(&colorSelect, sizeof(CHOOSECOLOR));
+	RECT rect;
+	HWND handle;
+	POINT p;
+
+
+	switch (id)
 	{
 	case ID_MENU_MODEL_LINE:
 		CheckMenu(ID_MENU_MODEL_LINE, SHAPE_LINE);
@@ -180,7 +191,7 @@ void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify){
 			Global::Layers[layer]->RemoveShape();
 			Global::historyLayer.pop_back();
 			ReDrawMain();
-		}*/
+			}*/
 		MessageBox(hwnd, L"Chức năng đang phát triển do xung đột layer.", L"Thống báo", 0);
 		break;
 	}
@@ -190,27 +201,6 @@ void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify){
 	case IDM_ABOUT:
 		DialogBox(Global::hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hwnd, About);
 		break;
-	case ID_SAVE_OBJECT:
-	{
-		OPENFILENAME fileOpen;
-		WCHAR filename[MAX_PATH] = { '\0' };
-		ZeroMemory(&fileOpen, sizeof(fileOpen));
-		fileOpen.lStructSize = sizeof(OPENFILENAME);
-		fileOpen.hwndOwner = NULL;  // If you have a window to center over, put its HANDLE here
-		fileOpen.lpstrFilter = (LPCWSTR)L"Bin Files (*.bin)\0*.bin\0";
-		fileOpen.lpstrFile = filename;
-		fileOpen.nMaxFile = MAX_PATH;
-		fileOpen.lpstrTitle = L"Save As";
-		fileOpen.Flags = OFN_EXPLORER | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY;
-		fileOpen.lpstrDefExt = (LPCWSTR)L"bin";
-		if (GetSaveFileName(&fileOpen) == TRUE){
-			std::wstring path(fileOpen.lpstrFile);
-			char str[256];
-			sprintf(str, "%ws", fileOpen.lpstrFile);
-			writeToBinFile(str);
-		}
-		break; 
-	}
 	case ID_SAVE_BITMAP:
 	{
 		OPENFILENAME fileOpen;
@@ -218,17 +208,25 @@ void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify){
 		ZeroMemory(&fileOpen, sizeof(fileOpen));
 		fileOpen.lStructSize = sizeof(OPENFILENAME);
 		fileOpen.hwndOwner = NULL;  // If you have a window to center over, put its HANDLE here
-		fileOpen.lpstrFilter = (LPCWSTR)L"Bitmap Files (*.bmp)\0*.bmp\0";
+		fileOpen.lpstrFilter = (LPCWSTR)L"Bitmap Files (*.bmp)\0*.bmp\0Bin Files (*.bin)\0*.bin\0";
 		fileOpen.lpstrFile = filename;
 		fileOpen.nMaxFile = MAX_PATH;
 		fileOpen.lpstrTitle = L"Save As";
 		fileOpen.Flags = OFN_EXPLORER | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY;
 		fileOpen.lpstrDefExt = (LPCWSTR)L"bmp";
 		if (GetSaveFileName(&fileOpen) == TRUE){
-			std::wstring path(fileOpen.lpstrFile);
-			char str[256];
-			sprintf(str, "%ws", fileOpen.lpstrFile);
-			SaveToBitMap(str);
+			if (fileOpen.nFilterIndex == 1){
+				std::wstring path(fileOpen.lpstrFile);
+				char str[256];
+				sprintf(str, "%ws", fileOpen.lpstrFile);
+				SaveToBitMap(str);
+			}
+			else if (fileOpen.nFilterIndex == 2){
+				std::wstring path(fileOpen.lpstrFile);
+				char str[256];
+				sprintf(str, "%ws", fileOpen.lpstrFile);
+				writeToBinFile(str);
+			}
 		}
 		break;
 	}
@@ -236,6 +234,7 @@ void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify){
 	{
 		OPENFILENAME fileOpen;
 		WCHAR filename[MAX_PATH] = { '\0' };
+		WCHAR type[50] = { '\0' };
 		ZeroMemory(&fileOpen, sizeof(fileOpen));
 		fileOpen.lStructSize = sizeof(fileOpen);
 		fileOpen.hwndOwner = NULL;
@@ -246,67 +245,39 @@ void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify){
 		//
 		fileOpen.lpstrFile[0] = '\0';
 		fileOpen.nMaxFile = MAX_PATH;
-		fileOpen.lpstrFilter = L"Bitmap Files (*.bmp)\0*.bmp\0";
+		fileOpen.lpstrFilter = L"Bitmap Files (*.bmp)\0*.bmp\0Bin Files (*.bin)\0*.bin\0";
 		fileOpen.nFilterIndex = 1;
 		fileOpen.lpstrTitle = L"Open";
 		fileOpen.lpstrFileTitle = NULL;
 		fileOpen.nMaxFileTitle = 0;
 		fileOpen.lpstrInitialDir = NULL;
+		fileOpen.lpstrDefExt = type;
 		fileOpen.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
 		if (GetOpenFileName(&fileOpen) == TRUE){
-			/*for (int i = 0; i < Global::Layers.size(); ++i){
-				Global::Layers[i]->Release();
-				delete Global::Layers[i];
+			if (fileOpen.nFilterIndex == 1){
+				Global::hBoxLayer.AddItemListView();
+				Global::Layers.push_back(new Layer());
+				Global::Layers[Global::Layers.size() - 1]->SetBackGround(Global::hInst, fileOpen.lpstrFile);
+				Global::SelectLayers = 0;
+				ReDrawMain();
 			}
-			Global::Layers.clear();
-			Global::historyLayer.clear();
-			Global::hBoxLayer.Clear();*/
-			Global::hBoxLayer.AddItemListView();
-			Global::Layers.push_back(new Layer());
-			Global::Layers[Global::Layers.size() - 1]->SetBackGround(Global::hInst, fileOpen.lpstrFile);
-			Global::SelectLayers = 0;
-			ReDrawMain();
+			else if (fileOpen.nFilterIndex == 2){
+				for (int i = 0; i < Global::Layers.size(); ++i){
+					Global::Layers[i]->Release();
+					delete Global::Layers[i];
+				}
+				Global::Layers.clear();
+				std::wstring path(fileOpen.lpstrFile);
+				char str[256];
+				sprintf(str, "%ws", fileOpen.lpstrFile);
+				readFromBinFile(str);
+				Global::SelectLayers = 0;
+				ReDrawMain();
+			}
 		}
 	}
-		break;
-	case ID_OPEN_OBJECT:
-	{
-		OPENFILENAME fileOpen;
-		WCHAR filename[MAX_PATH] = { '\0' };
-		ZeroMemory(&fileOpen, sizeof(fileOpen));
-		fileOpen.lStructSize = sizeof(fileOpen);
-		fileOpen.hwndOwner = NULL;
-		fileOpen.lpstrFile = filename;
-		//
-		// Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
-		// use the contents of szFile to initialize itself.
-		//
-		fileOpen.lpstrFile[0] = '\0';
-		fileOpen.nMaxFile = MAX_PATH;
-		fileOpen.lpstrFilter = L"Bin Files (*.bin)\0*.bin\0";
-		fileOpen.nFilterIndex = 1;
-		fileOpen.lpstrTitle = L"Open";
-		fileOpen.lpstrFileTitle = NULL;
-		fileOpen.nMaxFileTitle = 0;
-		fileOpen.lpstrInitialDir = NULL;
-		fileOpen.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-		if (GetOpenFileName(&fileOpen) == TRUE){
-			for (int i = 0; i < Global::Layers.size(); ++i){
-				Global::Layers[i]->Release();
-				delete Global::Layers[i];
-			}
-			Global::Layers.clear();
-			std::wstring path(fileOpen.lpstrFile);
-			char str[256];
-			sprintf(str, "%ws", fileOpen.lpstrFile);
-			readFromBinFile(str);
-			Global::SelectLayers = 0;
-			ReDrawMain();
-		}
-	}
-		break;
+	break;
 	case ID_FILE_NEW:{
 		DialogBox(Global::hInst, MAKEINTRESOURCE(IDD_DIALOG2), hwnd, New);
 		break;
@@ -340,6 +311,73 @@ void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify){
 			}
 		}
 		break; //-------------------------------------------------
+	case ID_COLOR_CHOOSE:
+		colorSelect.lStructSize = sizeof(CHOOSECOLOR);
+		colorSelect.hwndOwner = hwnd;
+		colorSelect.lpCustColors = (LPDWORD)acrCustClr;
+		colorSelect.rgbResult = Global::curColor;
+		colorSelect.Flags = CC_FULLOPEN | CC_RGBINIT;
+		//C: Hiển thị hộp thoại chọn màu
+		if (ChooseColor(&colorSelect))
+			Global::curColor = colorSelect.rgbResult;
+		break;
+	case ID_COLOR_FILL:
+		colorSelect.lStructSize = sizeof(CHOOSECOLOR);
+		colorSelect.hwndOwner = hwnd;
+		colorSelect.lpCustColors = (LPDWORD)acrCustClr;
+		colorSelect.rgbResult = Global::curColorBG;
+		colorSelect.Flags = CC_FULLOPEN | CC_RGBINIT;
+		//C: Hiển thị hộp thoại chọn màu
+		if (ChooseColor(&colorSelect))
+			Global::curColorBG = colorSelect.rgbResult;
+		break;
+	case ID_SELECT:
+		UncheckAllMenu();
+		Global::CurShapeType = SHAPE_MOVE;
+		Global::paintPolygon = FALSE;
+		Global::DrawStarted = FALSE;
+		ReDrawMain();
+		break;
+	case ID_SHAPE_POINT:
+		UncheckAllMenu();
+		Global::CurShapeType = SHAPE_POINT;
+		Global::paintPolygon = FALSE;
+		Global::DrawStarted = FALSE;
+		ReDrawMain();
+		break;
+	case ID_SHAPE_MODEL:
+		GetCursorPos(&p);
+		handle = WindowFromPoint(p);
+		if (Global::hMenuModel == NULL){
+			Global::hMenuModel = CreatePopupMenu();
+
+			InsertMenu(Global::hMenuModel, 0, MF_BYPOSITION | MF_STRING | MF_UNCHECKED, ID_MENU_MODEL_LINE, L"Line");
+			InsertMenu(Global::hMenuModel, 1, MF_BYPOSITION | MF_STRING | MF_UNCHECKED, ID_MENU_MODEL_CIRCLE, L"Circle");
+			InsertMenu(Global::hMenuModel, 2, MF_BYPOSITION | MF_STRING | MF_UNCHECKED, ID_MENU_MODEL_RECTANGLE, L"Rectangle");
+			InsertMenu(Global::hMenuModel, 3, MF_BYPOSITION | MF_STRING | MF_UNCHECKED, ID_MENU_MODEL_POLYGON, L"Polygon");
+			InsertMenu(Global::hMenuModel, 4, MF_BYPOSITION | MF_STRING | MF_UNCHECKED, ID_MENU_MODEL_CIRCLE_FILL, L"Circle Fill");
+			InsertMenu(Global::hMenuModel, 5, MF_BYPOSITION | MF_STRING | MF_UNCHECKED, ID_MENU_MODEL_RECTANGLE_FILL, L"Rectangle Fill");
+		}
+		TrackPopupMenu(Global::hMenuModel, TPM_TOPALIGN | TPM_LEFTALIGN, p.x, p.y, 0, hwnd, NULL);
+		//g_bPolygon = FALSE;
+		Global::DrawStarted = FALSE;
+		break;
+	case IDC_RESIZE_RIBBON:{
+		Global::HeightRibbon = int(hwndCtl);
+		RECT rc = { 0 };
+		GetClientRect(Global::hWndMain, &rc);
+		Global::scrollMain.UpadateScrollY(Global::hWndMain, Global::hInst, rc, Global::HeightRibbon);
+		ReDrawMain();
+		break; 
+	}
+	case IDC_EDIT_SIZE:{
+		Global::sizePaint = int(hwndCtl);
+		break;
+	}		
+	case IDC_EDIT_STYLE:{
+		Global::typePaint = int(hwndCtl);
+		break;
+	}		
 	case IDM_EXIT:
 		DestroyWindow(hwnd);
 		break;
@@ -435,8 +473,8 @@ INT_PTR CALLBACK New(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 			ReDrawMain();
 			EndDialog(hDlg, LOWORD(wParam));
-			break; 
-			}
+			break;
+		}
 		}
 		break;
 	}
@@ -463,14 +501,14 @@ INT_PTR CALLBACK WndLayer(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		NMHDR* notifyMess = (NMHDR*)lParam;
 		switch (notifyMess->code){
-			case NM_CLICK:{
-				id_sel = ListView_GetSelectionMark(Global::hBoxLayer.getHandle());
-				if (id_sel != -1){
-					Global::SelectLayers = id_sel;
-					ReDrawMain();
-				}
-				break;
+		case NM_CLICK:{
+			id_sel = ListView_GetSelectionMark(Global::hBoxLayer.getHandle());
+			if (id_sel != -1){
+				Global::SelectLayers = id_sel;
+				ReDrawMain();
 			}
+			break;
+		}
 		}
 		break;
 	}
@@ -495,14 +533,14 @@ INT_PTR CALLBACK WndLayer(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			if (iIndex != -1)
 				iter_swap(Global::Layers.begin() + iIndex, Global::Layers.begin() + iIndex - 1);
 			ReDrawMain();
-			break; 
+			break;
 		}
 		case IDC_BUTTON4:{ // Di chuyển xuống layer
 			int iIndex = Global::hBoxLayer.MoveLVSelectedItemsDown();
 			if (iIndex != -1)
 				iter_swap(Global::Layers.begin() + iIndex, Global::Layers.begin() + iIndex + 1);
 			ReDrawMain();
-			break; 
+			break;
 		}
 		case IDCANCEL:
 			EndDialog(hDlg, LOWORD(wParam));
@@ -523,86 +561,18 @@ void OnDestroy(HWND hwnd)
 	for (int i = 0; i < Global::ShapeModels.size(); ++i){
 		delete Global::ShapeModels[i];
 	}
+	GdiplusShutdown(Global::gdiplusToken);
+	DestroyFramework();
 	PostQuitMessage(0);
+
+
 }
 LRESULT OnNotify(HWND hwnd, int idFrom, NMHDR *pnm){
 	LPNMTOOLBAR lpnmToolBar = (LPNMTOOLBAR)pnm;
-
-	static COLORREF acrCustClr[16];
-	CHOOSECOLOR colorSelect;
-	ZeroMemory(&colorSelect, sizeof(CHOOSECOLOR));
-	RECT rect;
-	HWND handle;
-	POINT p;
-	switch (pnm->code)
-	{
-	case NM_CLICK:
-		switch (pnm->idFrom)
-		{
-		case IDC_TOOLBAR:
-			switch (lpnmToolBar->iItem)
-			{
-			case ID_SELECT:
-				UncheckAllMenu();
-				Global::CurShapeType = SHAPE_MOVE;
-				Global::paintPolygon = FALSE;
-				Global::DrawStarted = FALSE;
-				ReDrawMain();
-				break;
-			case ID_SHAPE_POINT:
-				UncheckAllMenu();
-				Global::CurShapeType = SHAPE_POINT;
-				Global::paintPolygon = FALSE;
-				Global::DrawStarted = FALSE;
-				ReDrawMain();
-				break;
-			case ID_SHAPE_MODEL:
-				GetCursorPos(&p);
-				handle = WindowFromPoint(p);
-				if (Global::hMenuModel == NULL){
-					Global::hMenuModel = CreatePopupMenu();
-
-					InsertMenu(Global::hMenuModel, 0, MF_BYPOSITION | MF_STRING | MF_UNCHECKED, ID_MENU_MODEL_LINE, L"Line");
-					InsertMenu(Global::hMenuModel, 1, MF_BYPOSITION | MF_STRING | MF_UNCHECKED, ID_MENU_MODEL_CIRCLE, L"Circle");
-					InsertMenu(Global::hMenuModel, 2, MF_BYPOSITION | MF_STRING | MF_UNCHECKED, ID_MENU_MODEL_RECTANGLE, L"Rectangle");
-					InsertMenu(Global::hMenuModel, 3, MF_BYPOSITION | MF_STRING | MF_UNCHECKED, ID_MENU_MODEL_POLYGON, L"Polygon");
-					InsertMenu(Global::hMenuModel, 4, MF_BYPOSITION | MF_STRING | MF_UNCHECKED, ID_MENU_MODEL_CIRCLE_FILL, L"Circle Fill");
-					InsertMenu(Global::hMenuModel, 5, MF_BYPOSITION | MF_STRING | MF_UNCHECKED, ID_MENU_MODEL_RECTANGLE_FILL, L"Rectangle Fill");
-				}
-				TrackPopupMenu(Global::hMenuModel, TPM_TOPALIGN | TPM_LEFTALIGN, p.x, p.y, 0, hwnd, NULL);
-				//g_bPolygon = FALSE;
-				Global::DrawStarted = FALSE;
-				break;
-			case ID_COLOR_CHOOSE:
-				colorSelect.lStructSize = sizeof(CHOOSECOLOR);
-				colorSelect.hwndOwner = hwnd;
-				colorSelect.lpCustColors = (LPDWORD)acrCustClr;
-				colorSelect.rgbResult = Global::curColor;
-				colorSelect.Flags = CC_FULLOPEN | CC_RGBINIT;
-				//C: Hiển thị hộp thoại chọn màu
-				if (ChooseColor(&colorSelect))
-					Global::curColor = colorSelect.rgbResult;
-				break;
-			case ID_COLOR_FILL:
-				colorSelect.lStructSize = sizeof(CHOOSECOLOR);
-				colorSelect.hwndOwner = hwnd;
-				colorSelect.lpCustColors = (LPDWORD)acrCustClr;
-				colorSelect.rgbResult = Global::curColorBG;
-				colorSelect.Flags = CC_FULLOPEN | CC_RGBINIT;
-				//C: Hiển thị hộp thoại chọn màu
-				if (ChooseColor(&colorSelect))
-					Global::curColorBG = colorSelect.rgbResult;
-				break;
-			}
-			break; //case IDC_TOOLBAR:
-		}
-		break; //case NM_CLICK:
-	}
-
 	return 0;
 }
 
-
+bool initSuccess;
 BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 {
 	RECT		client;
@@ -610,9 +580,9 @@ BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 	double width = client.right - client.left;
 	double height = client.bottom - client.top;
 
-	Global::ToolBar = new CToolBar;
-	Global::ToolBar->Create(hwnd, IDC_TOOLBAR, Global::hInst, 0, 0, 0, 0);
-	SendMessage(Global::ToolBar->GetHandle(), TB_AUTOSIZE, 0, (LPARAM)0);
+	//Global::ToolBar = new CToolBar;
+	//Global::ToolBar->Create(hwnd, IDC_TOOLBAR, Global::hInst, 0, 0, 0, 0);
+	//SendMessage(Global::ToolBar->GetHandle(), TB_AUTOSIZE, 0, (LPARAM)0);
 
 
 
@@ -626,9 +596,14 @@ BOOL OnCreate(HWND hwnd, LPCREATESTRUCT lpCreateStruct)
 	Global::ShapeModels.push_back(new Model::CCircleFill);
 	Global::ShapeModels.push_back(new Model::CRectangleFill);
 	//Tạo scroll
-	Global::scrollMain.CreateScroll(hwnd);
+	Global::scrollMain.CreateScroll(hwnd, Global::hInst);
 
 
+	GdiplusStartup(&Global::gdiplusToken, &Global::gdiplusStartupInput, NULL);
+
+	initSuccess = InitializeFramework(hwnd);
+
+	if (!initSuccess) return -1;
 
 	return TRUE;
 }
@@ -670,7 +645,7 @@ void OnPaint(HWND hwnd)
 	}
 
 
-	if (!BitBlt(hdc, 0, HEIGHT_TOOLBAR, (int)width,
+	if (!BitBlt(hdc, 0, Global::HeightRibbon, (int)width,
 		(int)height, Global::bufferHDC, 0, 0, SRCCOPY)){
 		MessageBox(hwnd, L"", L"", 0);
 	}
@@ -679,8 +654,11 @@ void OnPaint(HWND hwnd)
 }
 
 void OnSize(HWND hwnd, UINT state, int cx, int cy){
+	RECT rc = { 0 };
+	GetClientRect(Global::hWndMain, &rc);
+	Global::scrollMain.UpadateScrollY(Global::hWndMain, Global::hInst, rc, Global::HeightRibbon);
 	ReDrawMain();
-	SendMessage(Global::ToolBar->GetHandle(), TB_AUTOSIZE, 0, (LPARAM)0);
+	//SendMessage(Global::ToolBar->GetHandle(), TB_AUTOSIZE, 0, (LPARAM)0);
 }
 bool isMoveMain = false;
 POINT pointStart;
@@ -702,10 +680,10 @@ void OnLButtonDown(HWND hwnd, BOOL fDoubleClick, int x, int y, UINT keyFlags)
 		//Global::historyLayer.push_back(Global::SelectLayers); // Thêm vào lịch sử
 		Global::DrawStarted = TRUE;
 		Global::pointMousePress.x = x - (Global::pointHDC.x + Global::offsetHDC.x) + Global::Layers[Global::SelectLayers]->GetOffset().x;
-		Global::pointMousePress.y = y - (Global::pointHDC.y + Global::offsetHDC.y) - HEIGHT_TOOLBAR + Global::Layers[Global::SelectLayers]->GetOffset().y;
+		Global::pointMousePress.y = y - (Global::pointHDC.y + Global::offsetHDC.y) - Global::HeightRibbon + Global::Layers[Global::SelectLayers]->GetOffset().y;
 
 		Global::pointMouseMove.x = x - (Global::pointHDC.x + Global::offsetHDC.x) + Global::Layers[Global::SelectLayers]->GetOffset().x;
-		Global::pointMouseMove.y = y - (Global::pointHDC.y + Global::offsetHDC.y) - HEIGHT_TOOLBAR + Global::Layers[Global::SelectLayers]->GetOffset().y;
+		Global::pointMouseMove.y = y - (Global::pointHDC.y + Global::offsetHDC.y) - Global::HeightRibbon + Global::Layers[Global::SelectLayers]->GetOffset().y;
 		if (Global::CurShapeType == SHAPE_POLYGON){
 			int iIndex = Global::Layers[Global::SelectLayers]->GetSize();
 			Model::CPolygon* tshape = (Model::CPolygon*)Global::Layers[Global::SelectLayers]->GetShape(iIndex - 1);
@@ -759,7 +737,7 @@ void OnMouseMove(HWND hwnd, int x, int y, UINT keyFlags)
 	else{
 		POINT mouse;
 		mouse.x = x - (Global::pointHDC.x + Global::offsetHDC.x);
-		mouse.y = y - (Global::pointHDC.y + Global::offsetHDC.y) - HEIGHT_TOOLBAR;
+		mouse.y = y - (Global::pointHDC.y + Global::offsetHDC.y) - Global::HeightRibbon;
 		TCHAR mousePos[50];
 		wsprintf(mousePos, _T("Paint32 (%d,%d)"), mouse.x, mouse.y);
 		SetWindowText(Global::hWndMain, mousePos);
@@ -800,7 +778,7 @@ void OnMouseMove(HWND hwnd, int x, int y, UINT keyFlags)
 						else{
 							Global::pointMouseMove.y = Global::pointMousePress.y - width;
 						}
-						
+
 					}
 				}
 				Global::Layers[Global::SelectLayers]->GetShape(iIndex - 1)->SetDraw(Global::curColor, Global::curColorBG, Global::pointMousePress, Global::pointMouseMove,
@@ -828,21 +806,21 @@ void OnLButtonUp(HWND hwnd, int x, int y, UINT keyFlags)
 	}
 	/*if (Global::CurShapeType != SHAPE_POINT){
 		if (Global::CurShapeType == SHAPE_CIRCLE || Global::CurShapeType == SHAPE_CIRCLE_FILL || Global::CurShapeType == SHAPE_RECTANGLE || Global::CurShapeType == SHAPE_RECTANGLE_FILL){
-			int ctrlValue = ::GetAsyncKeyState(VK_SHIFT);
-			if (ctrlValue){
-				int width = abs(Global::pointMousePress.x - Global::pointMouseMove.x);
-				if (Global::pointMouseMove.y > Global::pointMousePress.y){
-					Global::pointMouseMove.y = Global::pointMousePress.y + width;
-				}
-				else{
-					Global::pointMouseMove.y = Global::pointMousePress.y - width;
-				}
+		int ctrlValue = ::GetAsyncKeyState(VK_SHIFT);
+		if (ctrlValue){
+		int width = abs(Global::pointMousePress.x - Global::pointMouseMove.x);
+		if (Global::pointMouseMove.y > Global::pointMousePress.y){
+		Global::pointMouseMove.y = Global::pointMousePress.y + width;
+		}
+		else{
+		Global::pointMouseMove.y = Global::pointMousePress.y - width;
+		}
 
-			}
+		}
 		}
 		Global::Layers[Global::SelectLayers]->GetShape(iIndex - 1)->SetDraw(Global::curColor, Global::curColorBG, Global::pointMousePress, Global::pointMouseMove,
-			Global::typePaint, Global::sizePaint, FALSE);
-	}*/
+		Global::typePaint, Global::sizePaint, FALSE);
+		}*/
 	if (Global::CurShapeType != SHAPE_POLYGON){
 		Global::DrawStarted = FALSE;
 	}
@@ -852,7 +830,7 @@ void OnLButtonUp(HWND hwnd, int x, int y, UINT keyFlags)
 		Model::CPolygon* tshape = (Model::CPolygon*)Global::Layers[Global::SelectLayers]->GetShape(iIndex - 1);
 		tshape->SetAddLine();
 		Global::pointMousePress.x = x - (Global::pointHDC.x + Global::offsetHDC.x) + Global::Layers[Global::SelectLayers]->GetOffset().x;
-		Global::pointMousePress.y = y - (Global::pointHDC.y + Global::offsetHDC.y) - HEIGHT_TOOLBAR + Global::Layers[Global::SelectLayers]->GetOffset().y;
+		Global::pointMousePress.y = y - (Global::pointHDC.y + Global::offsetHDC.y) - Global::HeightRibbon + Global::Layers[Global::SelectLayers]->GetOffset().y;
 		Global::Layers[Global::SelectLayers]->GetShape(iIndex - 1)->SetDraw(Global::curColor, Global::curColorBG, Global::pointMousePress, Global::pointMouseMove,
 			Global::typePaint, Global::sizePaint, FALSE);
 		Global::paintPolygon = TRUE;
@@ -907,8 +885,9 @@ bool HDCToFile(const char* FilePath, HDC Context, RECT Area, int BitsPerPixel)
 void ReDrawMain(){
 	RECT		client;
 	::GetClientRect(Global::hWndMain, &client);
-	client.top = HEIGHT_TOOLBAR;
-	client.bottom += HEIGHT_TOOLBAR;
+	client.top = Global::HeightRibbon;
+	client.bottom += Global::HeightRibbon;
+	client.right -= 17;
 	InvalidateRect(Global::hWndMain, &client, FALSE);
 }
 

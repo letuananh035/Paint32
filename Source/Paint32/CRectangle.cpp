@@ -39,13 +39,21 @@ namespace Paint32{
 			SelectObject(hDc, GetStockObject(DC_BRUSH)); */
 			SelectObject(hDc, GetStockObject(NULL_BRUSH)); //Trong suốt
 			//Vẽ
-			if (!Rectangle(hDc, lefttop.x, lefttop.y,
+			/*if (!Rectangle(hDc, lefttop.x, lefttop.y,
 				rightbottom.x, rightbottom.y)){
 				throw Exception(L"Lỗi Rectangle");
-			}
+			}*/
 			/*Rectangle(hDc, lefttop.x, lefttop.y,
 				rightbottom.x, rightbottom.y);*/
-			DeleteObject(hPen);
+			::Color color_;
+			color_.SetFromCOLORREF(color);
+			Graphics* graphics = new Graphics(hDc);
+			Pen* pen = new Pen(color_, iPenWidth);
+			pen->SetDashStyle((DashStyle)iPenStyle);
+			graphics->DrawRectangle(pen, lefttop.x, lefttop.y, rightbottom.x - lefttop.x, rightbottom.y - lefttop.y);
+			delete pen;
+			delete graphics;
+			//DeleteObject(hPen);
 			//ReleaseDC(hwnd, hdc);
 		}
 
@@ -95,17 +103,27 @@ namespace Paint32{
 			if (bSetRop == true)
 				SetROP2(hDc, R2_MERGEPENNOT);
 			//Màu nền
-			SetDCBrushColor(hDc, this->ColorBG);
-			SelectObject(hDc, GetStockObject(DC_BRUSH)); 
+			//SetDCBrushColor(hDc, this->ColorBG);
+			//SelectObject(hDc, GetStockObject(DC_BRUSH)); 
 			//SelectObject(hDc, GetStockObject(NULL_BRUSH)); //Trong suốt
 			//Vẽ
-			if (!Rectangle(hDc, lefttop.x, lefttop.y,
+			/*if (!Rectangle(hDc, lefttop.x, lefttop.y,
 				rightbottom.x, rightbottom.y)){
 				throw Exception(L"Lỗi Rectangle");
-			}
+			}*/
 			/*Rectangle(hDc, lefttop.x, lefttop.y,
 			rightbottom.x, rightbottom.y);*/
-			DeleteObject(hPen);
+			::Color color_;
+			color_.SetFromCOLORREF(color);
+			Graphics* graphics = new Graphics(hDc);
+			//Pen* pen = new Pen(color_, iPenWidth);
+			//pen->SetDashStyle((DashStyle)iPenStyle);
+			SolidBrush *brush = new SolidBrush(color_);
+			Rect rec = Rect(lefttop.x, lefttop.y, rightbottom.x - lefttop.x, rightbottom.y - lefttop.y);
+			graphics->FillRectangle(brush, rec);
+			delete brush;
+			delete graphics;
+			//DeleteObject(hPen);
 			//ReleaseDC(hwnd, hdc);
 		}
 

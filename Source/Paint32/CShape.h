@@ -3,6 +3,10 @@
 #include <windows.h>
 #include <fstream>
 #include <string>
+#include <objidl.h>
+#include <gdiplus.h>
+#pragma comment (lib,"Gdiplus.lib")
+using namespace Gdiplus;
 using namespace std;
 namespace Paint32{
 	namespace Model{

@@ -60,8 +60,6 @@ void CToolBar::Create(HWND parentWnd, long ID, HINSTANCE hParentInst,
 	SendMessage(hcbb1, CB_ADDSTRING, 0, (LPARAM)L"PS_DOT");
 	SendMessage(hcbb1, CB_ADDSTRING, 0, (LPARAM)L"PS_DASHDOT");
 	SendMessage(hcbb1, CB_ADDSTRING, 0, (LPARAM)L"PS_DASHDOTDOT");
-	SendMessage(hcbb1, CB_ADDSTRING, 0, (LPARAM)L"PS_NULL");
-	SendMessage(hcbb1, CB_ADDSTRING, 0, (LPARAM)L"PS_INSIDEFRAME");
 	SendMessage(hcbb1, CB_SETCURSEL, 0, 0);
 
 

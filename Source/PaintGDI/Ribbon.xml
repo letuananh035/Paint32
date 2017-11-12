@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application xmlns="http://schemas.microsoft.com/windows/2009/Ribbon">
+  <Application.Commands>
+    <Command Name="cmdExit" LabelTitle="Exit" Symbol="ID_CMD_EXIT">
+      <Command.LargeImages>
+        <Image Id="10000">res/exit.png</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdNew" LabelTitle="New" Symbol="ID_CMD_NEW">
+      <Command.LargeImages>
+        <Image Id="10001">res/edit.png</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdOpen" LabelTitle="Open"  Symbol="ID_CMD_OPEN">
+      <Command.LargeImages>
+        <Image Id="10002">res/folder.png</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdSave" LabelTitle="Save"  Symbol="ID_CMD_SAVE">
+      <Command.LargeImages>
+        <Image Id="10003">res/save.png</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdMRUList" LabelTitle="Recent pictures" />
+    <Command Name="cmdTab1" LabelTitle="Home"/>
+    <Command Name="cmdGroup1" LabelTitle="Mouse"/>
+    <Command Name="cmdGroup2" LabelTitle="Tool"/>
+    <Command Name="cmdPen" LabelTitle="Pen"  Symbol="ID_CMD_PEN">
+      <Command.LargeImages>
+        <Image Id="10004">res/pen.png</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdSelect" LabelTitle="Select"  Symbol="ID_CMD_SELECT">
+      <Command.LargeImages>
+        <Image Id="10005">res/cursor.png</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdModel" LabelTitle="Model"  Symbol="ID_CMD_MODEL">
+      <Command.LargeImages>
+        <Image Id="10006">res/model.png</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdColor" LabelTitle="Color"  Symbol="ID_CMD_COLOR">
+      <Command.LargeImages>
+        <Image Id="9999">res/color.png</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdFill" LabelTitle="Fill"  Symbol="ID_CMD_FILL">
+      <Command.LargeImages>
+        <Image Id="10007">res/fill.png</Image>
+      </Command.LargeImages>
+    </Command>
+    <Command Name="cmdDropDownButtonStyle" LabelTitle="OutLine">
+      <Command.LargeImages>
+        <Image Id="10008">res/pixelated.png</Image>
+      </Command.LargeImages>
+    </Command>
+    
+    <Command Name="cmdGroupStyleActions" LabelTitle="Style"/>
+    <Command Name="cmdSOLID" LabelTitle="SOLID" Symbol="ID_CMD_STYLE_SOLID"/>
+    <Command Name="cmdDASH" LabelTitle="DASH" Symbol="ID_CMD_STYLE_DASH"/>
+    <Command Name="cmdDOT" LabelTitle="DOT" Symbol="ID_CMD_STYLE_DOT"/>
+    <Command Name="cmdDASHDOT" LabelTitle="DASHDOT" Symbol="ID_CMD_STYLE_DASHDOT"/>
+    <Command Name="cmdDASHDOTDOT" LabelTitle="DASHDOTDOT" Symbol="ID_CMD_STYLE_DASHDOTDOT"/>
+
+
+    <Command Name="cmdDropDownButtonSize" LabelTitle="Size">
+      <Command.LargeImages>
+        <Image Id="10009">res/size.png</Image>
+      </Command.LargeImages>
+    </Command>
+
+    <Command Name="cmdGroupSizeActions" LabelTitle="Size"/>
+    <Command Name="cmdSize1" LabelTitle="1" Symbol="ID_CMD_SIZE_1"/>
+    <Command Name="cmdSize2" LabelTitle="2" Symbol="ID_CMD_SIZE_2"/>
+    <Command Name="cmdSize3" LabelTitle="3" Symbol="ID_CMD_SIZE_3"/>
+    <Command Name="cmdSize4" LabelTitle="4" Symbol="ID_CMD_SIZE_4"/>
+    <Command Name="cmdSize5" LabelTitle="5" Symbol="ID_CMD_SIZE_5"/>
+    <Command Name="cmdSize6" LabelTitle="6" Symbol="ID_CMD_SIZE_6"/>
+    <Command Name="cmdSize7" LabelTitle="7" Symbol="ID_CMD_SIZE_7"/>
+    
+    
+    <Command Name="cmdGroup4" LabelTitle="Layers"/>
+    <Command Name="cmdLayer" LabelTitle="Layers" Symbol="ID_CMD_LAYERS">
+      <Command.LargeImages>
+        <Image Id="10010">res/layers.png</Image>
+      </Command.LargeImages>
+    </Command>
+  </Application.Commands>
+  <Application.Views>
+    <Ribbon>
+      <Ribbon.ApplicationMenu>
+        <ApplicationMenu CommandName="cmdFileMenu">
+          <ApplicationMenu.RecentItems>
+            <RecentItems CommandName="cmdMRUList" MaxCount="1" />
+          </ApplicationMenu.RecentItems>
+          <MenuGroup Class="MajorItems">
+            <Button CommandName="cmdNew" />
+            <Button CommandName="cmdOpen" />
+            <Button CommandName="cmdSave" />
+            <Button CommandName="cmdExit" />
+          </MenuGroup>
+        </ApplicationMenu>
+      </Ribbon.ApplicationMenu>
+    
+      <Ribbon.Tabs>
+        <Tab CommandName="cmdTab1">
+          <Group CommandName="cmdGroup1" SizeDefinition="OneButton">
+            <Button CommandName="cmdSelect" />
+          </Group>
+          <Group CommandName="cmdGroup2" SizeDefinition="FourButtons">
+            <Button CommandName="cmdPen" />
+            <Button CommandName="cmdModel" />
+            <Button CommandName="cmdColor" />
+            <Button CommandName="cmdFill" />
+          </Group>
+          
+          <Group CommandName="cmdGroupStyleActions" SizeDefinition="OneButton">
+            <DropDownButton CommandName='cmdDropDownButtonStyle'>
+              <MenuGroup Class='MajorItems'>
+                <Button CommandName='cmdSOLID' />
+                <Button CommandName='cmdDASH' />
+                <Button CommandName='cmdDOT' />
+                <Button CommandName='cmdDASHDOT' />
+                <Button CommandName='cmdDASHDOTDOT' />
+              </MenuGroup>
+            </DropDownButton>
+          </Group>
+          <Group CommandName="cmdGroupSizeActions" SizeDefinition="OneButton">
+            <DropDownButton CommandName='cmdDropDownButtonSize'>
+              <MenuGroup Class='MajorItems'>
+                <Button CommandName='cmdSize1' />
+                <Button CommandName='cmdSize2' />
+                <Button CommandName='cmdSize3' />
+                <Button CommandName='cmdSize4' />
+                <Button CommandName='cmdSize5' />
+                <Button CommandName='cmdSize6' />
+                <Button CommandName='cmdSize7' />
+              </MenuGroup>
+            </DropDownButton>
+          </Group>
+          <Group CommandName="cmdGroup4" SizeDefinition="OneButton">
+            <Button CommandName='cmdLayer' />
+          </Group>
+        </Tab>
+      </Ribbon.Tabs>
+      <Ribbon.QuickAccessToolbar>
+        <QuickAccessToolbar CommandName="cmdQat" />
+      </Ribbon.QuickAccessToolbar>
+    </Ribbon>
+  </Application.Views>
+</Application>
+		
+		

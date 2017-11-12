@@ -34,17 +34,27 @@ namespace Paint32{
 			if (bSetRop == true)
 				SetROP2(hDc, R2_MERGEPENNOT);
 
-			HPEN hPen = CreatePen(iPenStyle, iPenWidth, color);
-			SelectObject(hDc, hPen);
-			if (!MoveToEx(hDc, lefttop.x, lefttop.y, NULL)){
-				throw Exception(L"Lỗi MoveToEx");
-				return;
-			}
-			if(!LineTo(hDc, rightbottom.x, rightbottom.y)){
-				throw Exception(L"Lỗi LineTo");
-				return;
-			}
-			DeleteObject(hPen);
+			//HPEN hPen = CreatePen(iPenStyle, iPenWidth, color);
+			//SelectObject(hDc, hPen);
+			//if (!MoveToEx(hDc, lefttop.x, lefttop.y, NULL)){
+			//	throw Exception(L"Lỗi MoveToEx");
+			//	return;
+			//}
+			//if(!LineTo(hDc, rightbottom.x, rightbottom.y)){
+			//	throw Exception(L"Lỗi LineTo");
+			//	return;
+			//}
+			//DeleteObject(hPen);
+
+			::Color color_;
+			color_.SetFromCOLORREF(color);
+			Graphics* graphics = new Graphics(hDc);
+			Pen* pen = new Pen(color_, iPenWidth);
+			pen->SetDashStyle((DashStyle)iPenStyle);
+			graphics->DrawLine(pen, lefttop.x, lefttop.y, rightbottom.x, rightbottom.y);
+			delete pen;
+			delete graphics;
+
 			//ReleaseDC(hwnd, hdc);
 		}
 

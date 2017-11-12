@@ -27,7 +27,7 @@ using namespace Paint32;
 #define SHAPE_RECTANGLE_FILL	7
 //
 #define MAX_LOADSTRING 100
-#define HEIGHT_TOOLBAR 64
+
 namespace Global
 {
 	HWND hWndMain = NULL;							// HWND Main
@@ -46,7 +46,7 @@ namespace Global
 	//HWND hToolBar = NULL;							// handle tool bar
 	UI::Scroll scrollMain;							// Thanh scroll
 	CToolBar* ToolBar;								// Tool bar
-	int CurShapeType = SHAPE;							// Type shape
+	int CurShapeType = SHAPE;						// Type shape
 	bool DrawStarted = false;						//	
 	vector <Model::CShape*> ShapeModels;			//
 	COLORREF curColor = RGB(0, 0, 0);				//
@@ -61,5 +61,7 @@ namespace Global
 	int sizePaint = 1;								//
 	int typePaint = 0;								//
 	vector<int> historyLayer;						//
-
+	GdiplusStartupInput gdiplusStartupInput;		//
+	ULONG_PTR           gdiplusToken;				//
+	int HeightRibbon = 147;							//
 }

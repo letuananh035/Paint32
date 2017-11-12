@@ -45,11 +45,15 @@ namespace Paint32{
 		}
 		//FillRect(this->hDc, &rc, (HBRUSH)::GetStockObject(WHITE_BRUSH));
 		if (Sel == true){
-			HPEN hPen = CreatePen(2, 1, RGB(0, 0, 0));
-			SelectObject(this->hDc, hPen);
-			SelectObject(this->hDc, GetStockObject(NULL_BRUSH)); //Trong suốt
-			Rectangle(this->hDc, 0, 0, this->sizeHDC.cx, this->sizeHDC.cy);
-			DeleteObject(hPen);
+			//HPEN hPen = CreatePen(2, 1, RGB(0, 0, 0));
+			//SelectObject(this->hDc, hPen);
+			//SelectObject(this->hDc, GetStockObject(NULL_BRUSH)); //Trong suốt
+			//Rectangle(this->hDc, 0, 0, this->sizeHDC.cx, this->sizeHDC.cy);
+			//DeleteObject(hPen);
+			Graphics* graphics = new Graphics(hDc);
+			Pen* pen = new Pen(::Color(255,0,0,0), 1);
+			pen->SetDashStyle(DashStyle::DashStyleDashDot);
+			graphics->DrawRectangle(pen, 0, 0, this->sizeHDC.cx - 1, this->sizeHDC.cy - 1);
 		}
 		if (length > 0){
 			for (int i = 0; i < length; ++i){

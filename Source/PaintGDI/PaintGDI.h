@@ -11,6 +11,14 @@
 #include <Commdlg.h>
 #pragma comment(linker,"\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #pragma comment(lib, "comctl32.lib")
+#include <objidl.h>
+#include <gdiplus.h>
+#pragma comment (lib,"Gdiplus.lib")
+using namespace Gdiplus;
+#include <Objbase.h>
+#pragma comment(lib, "Ole32.lib")
+#include "RibbonFramework.h"
+#include "RibbonIDs.h"
 
 #include <WindowsX.h> //C: Dùng để ánh xạ các message vào các hàm xử lí tương ứng
 //C: Sử dụng lớp mảng động vector
