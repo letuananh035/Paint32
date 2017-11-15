@@ -103,24 +103,22 @@ namespace Paint32{
 			if (bSetRop == true)
 				SetROP2(hDc, R2_MERGEPENNOT);
 			//Màu nền
-			//SetDCBrushColor(hDc, this->ColorBG);
-			//SelectObject(hDc, GetStockObject(DC_BRUSH)); 
-			//SelectObject(hDc, GetStockObject(NULL_BRUSH)); //Trong suốt
-			//Vẽ
-			/*if (!Rectangle(hDc, lefttop.x, lefttop.y,
-				rightbottom.x, rightbottom.y)){
-				throw Exception(L"Lỗi Rectangle");
-			}*/
-			/*Rectangle(hDc, lefttop.x, lefttop.y,
-			rightbottom.x, rightbottom.y);*/
+			::Color color_bg;
+			color_bg.SetFromCOLORREF(colorbg);
+			Graphics* graphics_bg = new Graphics(hDc);
+			SolidBrush *brush = new SolidBrush(color_bg);
+			Rect rec = Rect(lefttop.x, lefttop.y, rightbottom.x - lefttop.x, rightbottom.y - lefttop.y);
+			graphics_bg->FillRectangle(brush, rec);
+
+			//Viền
 			::Color color_;
 			color_.SetFromCOLORREF(color);
 			Graphics* graphics = new Graphics(hDc);
-			//Pen* pen = new Pen(color_, iPenWidth);
-			//pen->SetDashStyle((DashStyle)iPenStyle);
-			SolidBrush *brush = new SolidBrush(color_);
-			Rect rec = Rect(lefttop.x, lefttop.y, rightbottom.x - lefttop.x, rightbottom.y - lefttop.y);
-			graphics->FillRectangle(brush, rec);
+			Pen* pen = new Pen(color_, iPenWidth);
+			pen->SetDashStyle((DashStyle)iPenStyle);
+			graphics->DrawRectangle(pen, lefttop.x, lefttop.y, rightbottom.x - lefttop.x, rightbottom.y - lefttop.y);
+			delete graphics_bg;
+			delete pen;
 			delete brush;
 			delete graphics;
 			//DeleteObject(hPen);

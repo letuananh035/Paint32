@@ -37,13 +37,7 @@ namespace Paint32{
 			//
 			//Màu nền
 			SelectObject(hDc, GetStockObject(NULL_BRUSH)); //Trong suốt
-			/*SetDCBrushColor(hDc, this->ColorBG);
-			SelectObject(hDc, GetStockObject(DC_BRUSH));
-			*/
-			/*if (!Ellipse(hDc, lefttop.x, lefttop.y,
-				rightbottom.x, rightbottom.y)){
-				throw Exception(L"Lỗi Ellipse");
-			}*/
+
 			::Color color_;
 			color_.SetFromCOLORREF(color);
 			Graphics* graphics = new Graphics(hDc);
@@ -52,20 +46,6 @@ namespace Paint32{
 			graphics->DrawEllipse(pen, lefttop.x, lefttop.y, rightbottom.x - lefttop.x, rightbottom.y - lefttop.y);
 			delete pen;
 			delete graphics;
-
-			//HatchBrush* myHatchBrush = new HatchBrush(
-			//	HatchStyleCross,
-			//	Color(255, 0, 255, 0),
-			//	Color(255, 0, 0, 255));
-			//
-			//graphics->FillRectangle(myHatchBrush, 100, 50, 100, 30);
-
-			//// ! Seperation drawing & filling
-			//graphics->DrawRectangle(pen, 100, 50, 100, 30);
-
-			
-
-			//DeleteObject(hPen);
 		}
 
 		void CCircle::ReDraw(HDC hDc)
@@ -114,23 +94,23 @@ namespace Paint32{
 				SetROP2(hDc, R2_MERGEPENNOT);
 			//
 			//Màu nền
-			//SelectObject(hDc, GetStockObject(NULL_BRUSH)); //Trong suốt
-			/*SetDCBrushColor(hDc, this->ColorBG);
-			SelectObject(hDc, GetStockObject(DC_BRUSH));
-			if (!Ellipse(hDc, lefttop.x, lefttop.y,
-				rightbottom.x, rightbottom.y)){
-				throw Exception(L"Lỗi Ellipse");
-			}
-			DeleteObject(hPen);*/
-
 			::Color color_;
-			color_.SetFromCOLORREF(color);
+			color_.SetFromCOLORREF(colorbg);
 			Graphics* graphics = new Graphics(hDc);
-			//Pen* pen = new Pen(color_, iPenWidth);
-			//pen->SetDashStyle((DashStyle)iPenStyle);
 			SolidBrush *brush = new SolidBrush(color_);
 			Rect rec = Rect(lefttop.x, lefttop.y, rightbottom.x - lefttop.x, rightbottom.y - lefttop.y);
 			graphics->FillEllipse(brush, rec);
+			
+			//Viền
+			::Color color_bg;
+			color_bg.SetFromCOLORREF(color);
+			Graphics* graphics_bg = new Graphics(hDc);
+			Pen* pen = new Pen(color_bg, iPenWidth);
+			pen->SetDashStyle((DashStyle)iPenStyle);
+			graphics_bg->DrawEllipse(pen, lefttop.x, lefttop.y, rightbottom.x - lefttop.x, rightbottom.y - lefttop.y);
+			delete graphics_bg;
+			delete pen;
+
 			delete brush;
 			delete graphics;
 

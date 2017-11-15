@@ -1,15 +1,15 @@
 ﻿#pragma once
 #include "stdafx.h"
 
-#include "..\\Paint32\\CLine.h"
-#include "..\\Paint32\\CCircle.h"
-#include "..\\Paint32\\CPolygon.h"
-#include "..\\Paint32\\CRectangle.h"
-#include "..\\Paint32\\Layer.h"
-#include "..\\Paint32\\Exception.h"
-#include "..\\Paint32\\Scroll.h"
-#include "..\\Paint32\\LayerView.h"
-#pragma comment(lib, "..\\Debug\\Paint32.lib")
+#include "CLine.h"
+#include "CCircle.h"
+#include "CPolygon.h"
+#include "CRectangle.h"
+#include "Layer.h"
+#include "Exception.h"
+#include "Scroll.h"
+#include "LayerView.h"
+#pragma comment(lib, "Paint32.lib")
 
 
 #include "CToolBar.h"
