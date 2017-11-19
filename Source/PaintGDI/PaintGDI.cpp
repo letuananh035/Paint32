@@ -99,7 +99,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	Global::hInst = hInstance; // Store instance handle in our global variable
 
-	hWnd = CreateWindow(Global::szWindowClass, Global::szTitle, WS_OVERLAPPEDWINDOW,
+	hWnd = CreateWindow(Global::szWindowClass, Global::szTitle, WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 
 	if (!hWnd)
